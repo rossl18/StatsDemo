@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Central Limit Theorem Demo</title>
+
+  <!-- Load Plotly from a CDN -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <!-- Our custom script -->
+  <script defer src="script.js"></script>
+
+  <!-- Basic styling -->
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #controls {
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #chart {
+      max-width: 800px;
+      width: 100%;
+      height: 500px;
+      margin: 20px auto;
+    }
+    input {
+      width: 80px;
+      text-align: center;
+      margin: 0 10px;
+    }
+    button {
+      margin: 0 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Central Limit Theorem: Coin Flip Demo</h1>
+  <p style="max-width: 650px; margin: auto;">
+    This interactive demo simulates flipping <b>n</b> fair coins per sample. 
+    Each time we flip <b>n</b> coins, we compute the fraction of heads (the sample mean).
+    Plotly displays a histogram of these sample means. 
+    As we add more samples, the distribution converges to a bell curve (the normal distribution). 
+  </p>
+
+  <div id="controls">
+    <label for="sample-size">Sample size (n): </label>
+    <input type="number" id="sample-size" value="30" min="1" />
+
+    <label for="num-samples">Add how many samples?</label>
+    <input type="number" id="num-samples" value="100" min="1" />
+
+    <button id="add-samples-btn">Add Samples</button>
+    <button id="reset-btn">Reset</button>
+  </div>
+
+  <div id="chart"></div>
+</body>
+</html>
