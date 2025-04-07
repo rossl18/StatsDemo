@@ -3,65 +3,138 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Central Limit Theorem Demo</title>
+  <title>Statistics Demos</title>
 
-  <!-- Load Plotly from a CDN -->
+  <!-- Load Plotly (for all demos) -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- Our custom script -->
+  <!-- Link to our JS (defer so elements load first) -->
   <script defer src="script.js"></script>
 
-  <!-- Basic styling -->
+  <!-- Simple styling -->
   <style>
     body {
       font-family: sans-serif;
       margin: 20px;
+      max-width: 1000px;
     }
-    h1 {
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 5px;
+    }
+    section {
+      margin-bottom: 50px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .controls {
+      margin: 15px 0;
+    }
+    label {
+      margin-right: 6px;
+    }
+    input[type="number"] {
+      width: 70px;
+      margin-right: 10px;
       text-align: center;
-    }
-    #controls {
-      max-width: 600px;
-      margin: 20px auto;
-      text-align: center;
-    }
-    #chart {
-      max-width: 800px;
-      width: 100%;
-      height: 500px;
-      margin: 20px auto;
-    }
-    input {
-      width: 80px;
-      text-align: center;
-      margin: 0 10px;
     }
     button {
-      margin: 0 10px;
+      margin-left: 10px;
       cursor: pointer;
+    }
+    .chart {
+      width: 800px;
+      max-width: 100%;
+      height: 500px;
+    }
+    .stats-output {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: #333;
+    }
+    hr {
+      margin: 30px 0;
     }
   </style>
 </head>
+
 <body>
-  <h1>Central Limit Theorem: Coin Flip Demo</h1>
-  <p style="max-width: 650px; margin: auto;">
-    This interactive demo simulates flipping <b>n</b> fair coins per sample. 
-    Each time we flip <b>n</b> coins, we compute the fraction of heads (the sample mean).
-    Plotly displays a histogram of these sample means. 
-    As we add more samples, the distribution converges to a bell curve (the normal distribution). 
+  <h1>Statistics Demos (All Client-Side)</h1>
+  <p>
+    This page has three demos:
   </p>
+  <ol>
+    <li><a href="#demo-clt">Central Limit Theorem (Coin Flips)</a></li>
+    <li><a href="#demo-regression">Interactive Linear Regression</a></li>
+    <li><a href="#demo-binom-poisson">Binomial → Poisson Convergence</a></li>
+  </ol>
 
-  <div id="controls">
-    <label for="sample-size">Sample size (n): </label>
-    <input type="number" id="sample-size" value="30" min="1" />
+  <hr />
 
-    <label for="num-samples">Add how many samples?</label>
-    <input type="number" id="num-samples" value="100" min="1" />
+  <!-- ------------------------- DEMO #1: CLT ------------------------- -->
+  <section id="demo-clt">
+    <h2>1) Central Limit Theorem (Coin Flips)</h2>
+    <p>
+      Simulate flipping n coins per sample. Each sample yields a fraction of heads.
+      We plot those sample means in a histogram (blue bars). As more samples are added, they approximate
+      a normal distribution (red curve) with mean = 0.5 and \(\sigma = 0.5 / \sqrt{n}\).
+    </p>
 
-    <button id="add-samples-btn">Add Samples</button>
-    <button id="reset-btn">Reset</button>
-  </div>
+    <div class="controls">
+      <label for="sample-size-clt">Sample size (n):</label>
+      <input type="number" id="sample-size-clt" value="30" min="1" />
 
-  <div id="chart"></div>
+      <label for="num-samples-clt">Add how many samples?</label>
+      <input type="number" id="num-samples-clt" value="100" min="1" />
+
+      <button id="add-samples-btn-clt">Add Samples</button>
+      <button id="reset-btn-clt">Reset</button>
+    </div>
+    <div id="chart-clt" class="chart"></div>
+  </section>
+
+  <!-- ------------------------- DEMO #2: Linear Regression ------------------------- -->
+  <section id="demo-regression">
+    <h2>2) Interactive Linear Regression</h2>
+    <p>
+      Add (x, y) points below, and the code will fit a simple linear regression (ordinary least squares).
+      The slope, intercept, mean squared error (MSE), and R² are shown, along with a best-fit line.
+    </p>
+
+    <div class="controls">
+      <label for="x-input-reg">x:</label>
+      <input type="number" id="x-input-reg" value="0" />
+      <label for="y-input-reg">y:</label>
+      <input type="number" id="y-input-reg" value="0" />
+      <button id="add-point-btn-reg">Add Point</button>
+      <button id="reset-btn-reg">Reset</button>
+    </div>
+
+    <div id="chart-regression" class="chart"></div>
+    <div id="stats-regression" class="stats-output"></div>
+  </section>
+
+  <!-- ------------------------- DEMO #3: Binomial -> Poisson ------------------------- -->
+  <section id="demo-binom-poisson">
+    <h2>3) Binomial → Poisson Convergence</h2>
+    <p>
+      For a Binomial(n, p), if n is large and p is small but \( \lambda = np \) is held constant,
+      the binomial distribution approaches Poisson(\(\lambda\)). 
+      Enter n and p below, and see how the binomial PMF (blue bars) compares to 
+      the Poisson(\(\lambda = n \times p\)) distribution (red line).
+    </p>
+    <div class="controls">
+      <label for="n-binom-pois">n:</label>
+      <input type="number" id="n-binom-pois" value="50" min="1" />
+      <label for="p-binom-pois">p:</label>
+      <input type="number" id="p-binom-pois" step="0.01" value="0.1" min="0" max="1" />
+      <button id="plot-binom-pois-btn">Plot Distribution</button>
+    </div>
+    <div id="chart-binom-poisson" class="chart"></div>
+  </section>
+
 </body>
 </html>
+
