@@ -1,15 +1,17 @@
-/********************************************************
+/*****************************************************
  * DEMO #1: CLT (Coin Flips)
- ********************************************************/
-let sampleMeansCLT = [];
+ *****************************************************/
+// We'll store the sample means in an array
+let sampleMeans = [];
 
-const sampleSizeCLT   = document.getElementById("sample-size-clt");
-const numSamplesCLT   = document.getElementById("num-samples-clt");
-const addSamplesBtnCLT = document.getElementById("add-samples-btn-clt");
-const resetBtnCLT     = document.getElementById("reset-btn-clt");
-const chartCLT        = document.getElementById("chart-clt");
+// Grab references to the CLT controls
+const sampleSizeInput  = document.getElementById("sample-size");
+const numSamplesInput  = document.getElementById("num-samples");
+const addSamplesBtn    = document.getElementById("add-samples-btn");
+const resetBtn         = document.getElementById("reset-btn");
+const chartDiv         = document.getElementById("chart");
 
-// Flip n coins, return fraction of heads
+// 1) Simulate flipping n coins and return fraction of heads
 function simulateCoinFlipMean(n) {
   let headsCount = 0;
   for (let i = 0; i < n; i++) {
@@ -18,32 +20,34 @@ function simulateCoinFlipMean(n) {
   return headsCount / n;
 }
 
-// Add multiple samples
-function addSamplesCLT() {
-  const n = parseInt(sampleSizeCLT.value, 10);
-  const numSamples = parseInt(numSamplesCLT.value, 10);
+// 2) Add multiple samples
+function addSamples() {
+  const n = parseInt(sampleSizeInput.value, 10);
+  const howMany = parseInt(numSamplesInput.value, 10);
 
-  for (let i = 0; i < numSamples; i++) {
-    sampleMeansCLT.push(simulateCoinFlipMean(n));
+  for (let i = 0; i < howMany; i++) {
+    sampleMeans.push(simulateCoinFlipMean(n));
   }
   plotCLT();
 }
 
-// Plot the histogram + normal
+// 3) Plot histogram + normal curve
 function plotCLT() {
-  const n = parseInt(sampleSizeCLT.value, 10);
+  const n = parseInt(sampleSizeInput.value, 10);
 
-  // Histogram trace
+  // HISTOGRAM trace
   const histTrace = {
-    x: sampleMeansCLT,
+    x: sampleMeans,
     type: 'histogram',
     name: 'Sample Means',
     histnorm: 'probability density',
-    marker: { line: { width: 1, color: 'black' } },
-    opacity: 0.7
+    opacity: 0.7,
+    marker: {
+      line: { width: 1, color: 'black' }
+    }
   };
 
-  // Normal curve
+  // Theoretical normal curve: mean=0.5, std=0.5/sqrt(n)
   const mean = 0.5;
   const stdev = 0.5 / Math.sqrt(n);
   const xVals = [];
@@ -59,47 +63,51 @@ function plotCLT() {
   const normalTrace = {
     x: xVals,
     y: yVals,
-    mode: 'lines',
     type: 'scatter',
+    mode: 'lines',
     name: 'Normal Approx',
     line: { color: 'red' }
   };
 
   const layout = {
-    title: `CLT Demo: n=${n}, samples=${sampleMeansCLT.length}`,
+    title: `CLT Demo (n=${n}, samples=${sampleMeans.length})`,
     xaxis: { title: 'Sample Mean (#Heads / n)' },
     yaxis: { title: 'Probability Density' },
     bargap: 0.02
   };
 
-  Plotly.newPlot(chartCLT, [histTrace, normalTrace], layout);
+  Plotly.newPlot(chartDiv, [histTrace, normalTrace], layout);
 }
 
-// Reset
-function resetCLT() {
-  sampleMeansCLT = [];
+// 4) Reset
+function resetData() {
+  sampleMeans = [];
   plotCLT();
 }
 
-// Hook up
-addSamplesBtnCLT.addEventListener("click", addSamplesCLT);
-resetBtnCLT.addEventListener("click", resetCLT);
-plotCLT();  // initial empty plot
+// Wire up the CLT buttons
+addSamplesBtn.addEventListener('click', addSamples);
+resetBtn.addEventListener('click', resetData);
 
-/********************************************************
+// Initial empty plot
+plotCLT();
+
+
+/*****************************************************
  * DEMO #2: Interactive Linear Regression
- ********************************************************/
+ *****************************************************/
 let xDataReg = [];
 let yDataReg = [];
 
-const xInputReg      = document.getElementById("x-input-reg");
-const yInputReg      = document.getElementById("y-input-reg");
-const addPointBtnReg = document.getElementById("add-point-btn-reg");
-const resetBtnReg    = document.getElementById("reset-btn-reg");
-const chartReg       = document.getElementById("chart-regression");
-const statsReg       = document.getElementById("stats-regression");
+// Grab references
+const xInputReg       = document.getElementById("x-input-reg");
+const yInputReg       = document.getElementById("y-input-reg");
+const addPointBtnReg  = document.getElementById("add-point-btn-reg");
+const resetBtnReg     = document.getElementById("reset-btn-reg");
+const chartRegression = document.getElementById("chart-regression");
+const statsReg        = document.getElementById("stats-regression");
 
-// Add (x, y) point from inputs
+// Add a new (x, y) point
 function addPointRegression() {
   const xVal = parseFloat(xInputReg.value);
   const yVal = parseFloat(yInputReg.value);
@@ -113,7 +121,7 @@ function addPointRegression() {
 // Compute slope, intercept, MSE, R²
 function computeRegression(xArr, yArr) {
   const n = xArr.length;
-  if (n < 2) return null; // need 2+ points
+  if (n < 2) return null;
 
   const meanX = xArr.reduce((a, b) => a + b, 0) / n;
   const meanY = yArr.reduce((a, b) => a + b, 0) / n;
@@ -129,7 +137,7 @@ function computeRegression(xArr, yArr) {
   const slope = (denominator === 0) ? 0 : numerator / denominator;
   const intercept = meanY - slope * meanX;
 
-  // MSE, R²
+  // MSE & R²
   let ssRes = 0, ssTot = 0;
   for (let i = 0; i < n; i++) {
     const yPred = slope * xArr[i] + intercept;
@@ -137,12 +145,12 @@ function computeRegression(xArr, yArr) {
     ssTot += (yArr[i] - meanY) ** 2;
   }
   const mse = ssRes / n;
-  const r2  = (ssTot === 0) ? 1 : 1 - (ssRes / ssTot);
+  const r2 = (ssTot === 0) ? 1 : 1 - (ssRes / ssTot);
 
   return { slope, intercept, mse, r2 };
 }
 
-// Plot data + regression line
+// Plot the scatter + best-fit line
 function plotRegression() {
   // Data points
   const scatterTrace = {
@@ -150,13 +158,14 @@ function plotRegression() {
     y: yDataReg,
     mode: 'markers',
     type: 'scatter',
-    name: 'Data Points'
+    name: 'Data'
   };
 
   const result = computeRegression(xDataReg, yDataReg);
   let lineTrace = {};
   if (result) {
     const { slope, intercept, mse, r2 } = result;
+    // line from minX to maxX
     const minX = Math.min(...xDataReg);
     const maxX = Math.max(...xDataReg);
     const lineX = [minX, maxX];
@@ -178,19 +187,19 @@ function plotRegression() {
       <b>R²:</b> ${r2.toFixed(3)}
     `;
   } else {
-    statsReg.innerHTML = "Need at least 2 points to compute regression.";
+    statsReg.innerHTML = "Need at least 2 points for regression.";
   }
 
   const layout = {
-    title: 'Interactive Linear Regression',
+    title: 'Linear Regression',
     xaxis: { title: 'X' },
     yaxis: { title: 'Y' }
   };
 
-  Plotly.newPlot(chartReg, [scatterTrace, lineTrace], layout);
+  Plotly.newPlot(chartRegression, [scatterTrace, lineTrace], layout);
 }
 
-// Reset regression
+// Reset
 function resetRegression() {
   xDataReg = [];
   yDataReg = [];
@@ -199,19 +208,20 @@ function resetRegression() {
 }
 
 // Wire up
-addPointBtnReg.addEventListener("click", addPointRegression);
-resetBtnReg.addEventListener("click", resetRegression);
+addPointBtnReg.addEventListener('click', addPointRegression);
+resetBtnReg.addEventListener('click', resetRegression);
 plotRegression();
 
-/********************************************************
- * DEMO #3: Binomial -> Poisson Convergence
- ********************************************************/
-const nBinomPois      = document.getElementById("n-binom-pois");
-const pBinomPois      = document.getElementById("p-binom-pois");
-const plotBinomPoisBtn= document.getElementById("plot-binom-pois-btn");
-const chartBinomPois  = document.getElementById("chart-binom-poisson");
 
-// Factorial & choose
+/*****************************************************
+ * DEMO #3: Binomial -> Poisson
+ *****************************************************/
+const nBinomPois       = document.getElementById("n-binom-pois");
+const pBinomPois       = document.getElementById("p-binom-pois");
+const plotBinomPoisBtn = document.getElementById("plot-binom-pois-btn");
+const chartBinomPois   = document.getElementById("chart-binom-poisson");
+
+// Factorial & choose for binomial
 function factorial(num) {
   if (num < 0) return NaN;
   let result = 1;
@@ -223,41 +233,41 @@ function factorial(num) {
 function choose(n, k) {
   return factorial(n) / (factorial(k) * factorial(n - k));
 }
+
 function binomialPMF(k, n, p) {
-  return choose(n, k) * p**k * (1 - p)**(n - k);
+  return choose(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
 }
 function poissonPMF(k, lambda) {
-  return (lambda**k * Math.exp(-lambda)) / factorial(k);
+  return Math.pow(lambda, k) * Math.exp(-lambda) / factorial(k);
 }
 
 function plotBinomPoisson() {
-  const n = parseInt(nBinomPois.value, 10);
-  const p = parseFloat(pBinomPois.value);
-  if (isNaN(n) || isNaN(p) || n < 1 || p < 0 || p > 1) return;
+  const nVal = parseInt(nBinomPois.value, 10);
+  const pVal = parseFloat(pBinomPois.value);
+  if (isNaN(nVal) || isNaN(pVal) || nVal < 1 || pVal < 0 || pVal > 1) return;
 
-  const lambda = n * p;
-  // We'll define k up to either n or ~some region around lambda
-  const maxK = Math.min(n, Math.floor(lambda + 4 * Math.sqrt(lambda) + 10));
+  const lambda = nVal * pVal;
+  // We'll define k up to nVal, but let's also limit
+  const maxK = Math.min(nVal, Math.floor(lambda + 4 * Math.sqrt(lambda) + 10));
   const kVals = [];
   const binVals = [];
   const poiVals = [];
 
   for (let k = 0; k <= maxK; k++) {
     kVals.push(k);
-    binVals.push(binomialPMF(k, n, p));
+    binVals.push(binomialPMF(k, nVal, pVal));
     poiVals.push(poissonPMF(k, lambda));
   }
 
-  // binomial trace
   const binTrace = {
     x: kVals,
     y: binVals,
     type: 'bar',
-    name: `Binomial(n=${n}, p=${p})`,
-    marker: { line: { width: 1, color: 'black' } },
-    opacity: 0.6
+    name: `Binomial(n=${nVal}, p=${pVal})`,
+    opacity: 0.6,
+    marker: { line: { width: 1, color: 'black' } }
   };
-  // poisson trace
+
   const poisTrace = {
     x: kVals,
     y: poiVals,
@@ -268,7 +278,7 @@ function plotBinomPoisson() {
   };
 
   const layout = {
-    title: `Binomial vs Poisson (λ = ${lambda.toFixed(2)})`,
+    title: `Binomial vs. Poisson (λ=${lambda.toFixed(2)})`,
     xaxis: { title: 'k' },
     yaxis: { title: 'Probability' },
     barmode: 'overlay'
@@ -277,7 +287,7 @@ function plotBinomPoisson() {
   Plotly.newPlot(chartBinomPois, [binTrace, poisTrace], layout);
 }
 
-plotBinomPoisBtn.addEventListener("click", plotBinomPoisson);
-plotBinomPoisson(); // initial plot
-
+// Wire up
+plotBinomPoisBtn.addEventListener('click', plotBinomPoisson);
+plotBinomPoisson(); // initial draw
 
